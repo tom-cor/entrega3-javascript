@@ -1,0 +1,2 @@
+# Philips HUE Command Center - CoderHouse JS
+Este práctico dashboard te permitirá conocer los dispositivos de la familia HUE conectados a tu hogar y administrarlos desde la comodidad de tu computadora/celular.
