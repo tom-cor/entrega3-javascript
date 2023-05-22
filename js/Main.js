@@ -1,169 +1,253 @@
-function init() {
-    // <----- Predefined devices section ----->
-    
-    
-    const predefinedDevicesSection = document.querySelector("#predefined-devices-list")
-    let predefinedDevicesList = [
-        new Device("Vintage Filamento Globo", "Calida", "E27", 7, null),
-        new Device("Vintage Filamento", "Neutro", "E27", 7, "Baño"),
-        new Device("Go", "RGB", "No", 12, "Living"),
-        new Device("Play", "RGB", "No", 24, "Living")
-    ]
-    
-    renderPredefinedDevices();
-    
-    function renderPredefinedDevices(params) {
-        predefinedDevicesSection.innerHTML = '';
-        predefinedDevicesList.forEach(device => {
-            container = addPredefinedDeviceCard(device);
-            predefinedDevicesSection.appendChild(container) ;   
-        });
-        
-    }
-    
-    function addPredefinedDeviceCard(device) {
-        let container = document.createElement("div");
-        container.className = "col-xl-3 col-lg-4 col-md-6";
-        container.innerHTML =
-            `
-            <div class="card border-dark mb-3" style="max-width: 20rem;">
-            <div class="card-header">${device.name}</div>
-            <div class="card-body">
-                <p class="card-text"><span class="badge bg-primary">Color</span> ${device.color}</p>
-                <p class="card-text"><span class="badge bg-primary">Zócalo</span> ${device.socket}</p>
-                <p class="card-text"><span class="badge bg-primary">Potencia</span> ${device.power} Watts</p>
-                <button type="button" class="btn btn-dark btn-add-new-device">Agregar</button>
-            </div>
-            `
-            return container;
-    }
-    
-    // <----- END Predefined devices section ----->
-    
-    const knownDevicesSection = document.querySelector("#known-devices-list");
-    
-    let knownDevicesList = JSON.parse(localStorage.getItem("knownDevices"));
-    if(!knownDevicesList)
-        knownDevicesList = [];
-    
-    let removeDeviceButtons;
-    renderKnownDevicesSection(knownDevicesList);
-    
-    
-    function renderKnownDevicesSection(list) {
-        knownDevicesSection.innerHTML = '';
-        list.forEach(device => {
-            container = addKnownDeviceCard(device);
-            knownDevicesSection.prepend(container);
-        })
-        if(list.length > 0)
-        {
-            removeDeviceButtons = document.querySelectorAll(".btn-remove-device")
-            removeDeviceButtons.forEach(removeDeviceButton => {
-                removeDeviceButton.addEventListener("click", removeDevice);
-            });    
-        }
-        
-    }
-    
-    let rooms = ["Dormitorio", "Cocina", "Sala de estar", "Comedor"];
-    
-    function generateContainerForEachRoom() {
-        let roomsContainers = [];
-        rooms.forEach(room => {
-            container = document.createElement("option")
-            container.value = room;
-            container.innerHTML = 
-            `
-                ${room}
-            `
-            roomsContainers.push(container)
-        
-        });
-        return roomsContainers;
-    }
-    
-    const roomSelectors = document.querySelectorAll(".roomsList")
-    roomSelectors.forEach(obj => {
-        containers = generateContainerForEachRoom();
-        containers.forEach(container => {
-            obj.appendChild(container);
-        });
+const predefinedDevicesSection = document.querySelector("#predefined-devices-list")
+const predefinedDevicesList = [
+    new Device("Vintage Filamento Globo", "Calida", "E27", 7, null, "1967068e-6e6d-4b84-82e0-45bbc7c29204"),
+    new Device("Vintage Filamento", "Neutro", "E27", 7, "Baño", "94891510-0ef9-42c2-be3e-a2700d1f81bb"),
+    new Device("Go", "RGB", "No", 12, "Living", "a7b1ca16-0afe-45c1-a3a4-58f8a2ee2225"),
+    new Device("Play", "RGB", "No", 24, "Living", "b6d6883e-a26f-4b16-997a-28fbdc439df0")
+]
+
+const rooms = ["Dormitorio", "Cocina", "Living", "Comedor"];
+
+renderPredefinedDevices();
+
+var style = getComputedStyle(document.body)
+console.log( style.getPropertyValue('--bs-body-bg') )
+
+const SwalBootstrap = Swal.mixin({
+    customClass: {
+      confirmButton: 'btn btn-success',
+      cancelButton: 'btn btn-danger'
+    },
+    buttonsStyling: false,
+    background: '#073642'
+})
+
+function renderPredefinedDevices(params) {
+    predefinedDevicesSection.innerHTML = '';
+    predefinedDevicesList.forEach(device => {
+        container = addPredefinedDeviceCard(device);
+        predefinedDevicesSection.appendChild(container) ;   
     });
-    console.log(roomSelectors);
+    addDeviceButtons = document.querySelectorAll(".btn-add-new-device")
+    addDeviceButtons.forEach(button => {
+        button.addEventListener("click", addDevice);
+    }); 
     
-    const roomFilter = document.querySelector(".room-filter");
-    roomFilter.addEventListener("change", filterByRoom);
-    
-    function filterByRoom(e) {
-        const roomSelected = e.target.value;
-        const filteredList = knownDevicesList.filter(device => device.room == roomSelected);
-        console.log(filteredList);
-        renderKnownDevicesSection(filteredList);
+}
+
+async function addDevice(e) {
+    const { value: room } = await SwalBootstrap.fire({
+        title: 'Select field validation',
+        input: 'select',
+        inputOptions: {
+        'Habitaciones': {
+            Dormitorio: 'Dormitorio',
+            Cocina: 'Cocina',
+            Living: 'Living',
+            Comedor: 'Comedor'
+        }
+        },
+        inputPlaceholder: 'Elegí una habitación',
+        showCancelButton: true,
+        inputValidator: (value) => {
+            return new Promise((resolve) => {
+              if (value === '') {
+                resolve('Tenes que elegir una habitación')
+              } else {
+                resolve()
+              }
+            })
+    }});
+    if(room === undefined)
+    {
+        return;
+    }
+    const deviceIdFromCatalog = e.target.getAttribute("id");
+    const deviceFromCatalog = predefinedDevicesList.find(device => device.id === deviceIdFromCatalog);
+    const newDevice = new Device(   deviceFromCatalog.name,
+                                    deviceFromCatalog.color,
+                                    deviceFromCatalog.socket,
+                                    deviceFromCatalog.power,
+                                    room);
+    knownDevicesList.push(newDevice);
+    localStorage.setItem("knownDevices", JSON.stringify(knownDevicesList));
+    const filterMessage = document.querySelector("#filter-message");
+    filterMessage.innerHTML = "Mostrando todos los dispositivos en el hogar";
+    renderKnownDevicesSection(knownDevicesList);
+
+    SwalBootstrap.fire({
+        position: 'center',
+        icon: 'success',
+        title: 'Dispositivo añadido',
+        showConfirmButton: false,
+        timer: 4000
+    })
+
+
+}
+
+const knownDevicesSection = document.querySelector("#known-devices-list");
+
+let knownDevicesList = JSON.parse(localStorage.getItem("knownDevices"));
+if(!knownDevicesList)
+    knownDevicesList = [];
+
+let removeDeviceButtons;
+renderKnownDevicesSection(knownDevicesList);
+
+
+function renderKnownDevicesSection(list) {
+    knownDevicesSection.innerHTML = '';
+    list.forEach(device => {
+        container = addKnownDeviceCard(device);
+        knownDevicesSection.prepend(container);
+    })
+    if(list.length > 0)
+    {
+        removeDeviceButtons = document.querySelectorAll(".btn-remove-device")
+        removeDeviceButtons.forEach(removeDeviceButton => {
+            removeDeviceButton.addEventListener("click", removeDevice);
+        });    
     }
     
-    const newDeviceForm = document.getElementById("new-device-form")
-    newDeviceForm.addEventListener("submit", addCustomDevice)
+}
+
+
+function generateContainerForEachRoom() {
+    let roomsContainers = [];
+    rooms.forEach(room => {
+        container = document.createElement("option")
+        container.value = room;
+        container.innerHTML = 
+        `
+            ${room}
+        `
+        roomsContainers.push(container)
     
-    function addCustomDevice(e) {
-        e.preventDefault();
-        e.target.getAttribute;
-        let form = e.target;
-        room = form.children[2].value;
-        deviceName = form.children[4].value;
-        color = form.children[6].value;
-        socket = form.children[8].value;
-        power = form.children[10].value;
-        device = new Device(deviceName, color, socket, Number(power), room);
-        knownDevicesList.push(device);
-        localStorage.setItem("knownDevices", JSON.stringify(knownDevicesList));
-        //container = addKnownDeviceCard(device)
-        // knownDevicesSection.prepend(container)
-        renderKnownDevicesSection(knownDevicesList);
-    
-    }
-    
-    function removeDevice(e) {
-    
-        e.target.getAttribute;
-        console.log("borrame, por dior");
-    
-        console.log(e);
-    
-    
-    }
-    
-    // const addNewDeviceBtn = document.querySelector(".btn-add-new-device")
-    // addNewDeviceBtn.addEventListener("click", function() {
-    //     Swal.fire({
-    //         title: 'Error!',
-    //         text: 'Do you want to continue',
-    //         icon: 'error',
-    //         confirmButtonText: 'Cool'
-    //       })
-    // })
-    
-    
-    function addKnownDeviceCard(device) {
-        let container = document.createElement("div")
-        container.className = "col-xl-3 col-lg-4 col-md-6"
-        container.innerHTML =
-            `
-            <div class="card border-dark mb-3" style="max-width: 20rem;">
-                <div class="card-header">${device.name}</div>
-                    <div class="card-body">
-                        <p class="card-text"><span class="badge bg-primary">Habitación</span> ${device.room}</p>
-                        <p class="card-text"><span class="badge bg-primary">Color</span> ${device.color}</p>
-                        <p class="card-text"><span class="badge bg-primary">Zócalo</span> ${device.socket}</p>
-                        <p class="card-text"><span class="badge bg-primary">Potencia</span> ${device.power} Watts</p>
-                        <div class="btn-group" role="group" aria-label="Basic example">
-                            <button type="button" class="btn btn-primary btn-add-same-device">Agregar uno igual</button>
-                            <button type="button" class="btn btn-danger btn-remove-device">Eliminar</button>
-                        </div>
-                    </div>
+    });
+    return roomsContainers;
+}
+
+const roomSelectors = document.querySelectorAll(".roomsList")
+roomSelectors.forEach(obj => {
+    containers = generateContainerForEachRoom();
+    containers.forEach(container => {
+        obj.appendChild(container);
+    });
+});
+
+const applyFilterButton = document.querySelector("#apply-filter");
+applyFilterButton.addEventListener("click", filterByRoom);
+
+function filterByRoom() {
+    const roomSelected = document.querySelector("#filter-by-room").value
+    const filteredList = knownDevicesList.filter(device => device.room == roomSelected);
+    const filterMessage = document.querySelector("#filter-message");
+    filterMessage.innerHTML = `Mostrando ${filteredList.length} dispositivos`;
+    renderKnownDevicesSection(filteredList);
+}
+
+const clearFilterButton = document.querySelector("#clear-filter");
+clearFilterButton.addEventListener("click", clearFilter);
+
+function clearFilter() {
+    document.querySelector("#filter-by-room").value = "0";
+    const filterMessage = document.querySelector("#filter-message");
+    filterMessage.innerHTML = `Mostrando ${knownDevicesList.length} dispositivos`;
+    renderKnownDevicesSection(knownDevicesList);
+}
+
+function removeDevice(e) {
+    SwalBootstrap.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+            const itemIdToBeRemoved = e.target.getAttribute("id");
+            const index = knownDevicesList.findIndex(object => {
+                return object.id === itemIdToBeRemoved;
+            });
+            knownDevicesList.splice(index, 1);
+            localStorage.setItem("knownDevices", JSON.stringify(knownDevicesList));
+            renderKnownDevicesSection(knownDevicesList);
+            SwalBootstrap.fire(
+                'Deleted!',
+                'Your file has been deleted.',
+                'success'
+            )
+        }
+      })
+}
+
+
+function addPredefinedDeviceCard(device) {
+    let container = document.createElement("div");
+    container.className = "col-xxl-3 col-xl-4 col-lg-4 col-md-6";
+    container.innerHTML =
+        `
+        <div class="card border-dark mb-3" style="max-width: 20rem;">
+        <h5 class="card-header">${device.name}</h5>
+        <div class="card-body">
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <th scope="row">Color</th>
+                        <td>${device.color}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Zócalo</th>
+                        <td>${device.socket}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Potencia</th>
+                        <td>${device.power}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" id="${device.id}" class="btn btn-primary btn-add-new-device">Agregar</button>
+        </div>
+        `
+        return container;
+}
+
+function addKnownDeviceCard(device) {
+    let container = document.createElement("div")
+    container.className = "col-xxl-3 col-xl-4 col-lg-4 col-md-6"
+    container.innerHTML =
+        `
+        <div class="card mb-3" style="max-width: 20rem;">
+            <h5 class="card-header text-primary border-primary">${device.name}</h5>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <th scope="row">Habitación</th>
+                                <td>${device.room}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Color</th>
+                                <td>${device.color}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Zócalo</th>
+                                <td>${device.socket}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Potencia</th>
+                                <td>${device.power}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" id=${device.id} class="btn btn-danger btn-remove-device">Eliminar</button>
                 </div>
+                
             </div>
-            `;
-            return container;
-    }
+        </div>
+        `;
+        return container;
 }
