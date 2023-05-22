@@ -141,6 +141,10 @@ applyFilterButton.addEventListener("click", filterByRoom);
 
 function filterByRoom() {
     const roomSelected = document.querySelector("#filter-by-room").value
+    if(rooms.findIndex(obj => obj == roomSelected) === -1)
+    {
+        return;
+    }
     const filteredList = knownDevicesList.filter(device => device.room == roomSelected);
     const filterMessage = document.querySelector("#filter-message");
     filterMessage.innerHTML = `Mostrando ${filteredList.length} dispositivos`;
