@@ -1,14 +1,17 @@
-const predefinedDevicesSection = document.querySelector("#predefined-devices-list")
-const predefinedDevicesList = [
-    new Device("Vintage Filamento Globo", "Calida", "E27", 7, null, "1967068e-6e6d-4b84-82e0-45bbc7c29204"),
-    new Device("Vintage Filamento", "Neutro", "E27", 7, "Baño", "94891510-0ef9-42c2-be3e-a2700d1f81bb"),
-    new Device("Go", "RGB", "No", 12, "Living", "a7b1ca16-0afe-45c1-a3a4-58f8a2ee2225"),
-    new Device("Play", "RGB", "No", 24, "Living", "b6d6883e-a26f-4b16-997a-28fbdc439df0")
-]
+const predefinedDevicesSection = document.querySelector("#predefined-devices-list");
+let predefinedDevicesList;
+fetch('/../predefinedDevices.json')
+.then((r) => r.json())
+.then((d) => {
+    predefinedDevicesList = d.predefinedDevices;
+    renderPredefinedDevices();
+    // d.predefinedDevices.forEach((device) => {
+            // predefinedDevicesList.push(new Device(device.name, device.color, device.socket, device.power, undefined, device.id));
+});
 
 const rooms = ["Dormitorio", "Cocina", "Living", "Comedor"];
 
-renderPredefinedDevices();
+// renderPredefinedDevices();
 
 var style = getComputedStyle(document.body)
 console.log( style.getPropertyValue('--bs-body-bg') )
@@ -22,7 +25,7 @@ const SwalBootstrap = Swal.mixin({
     background: '#073642'
 })
 
-function renderPredefinedDevices(params) {
+function renderPredefinedDevices() {
     predefinedDevicesSection.innerHTML = '';
     predefinedDevicesList.forEach(device => {
         container = addPredefinedDeviceCard(device);

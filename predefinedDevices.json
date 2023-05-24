@@ -1,0 +1,36 @@
+{
+    "predefinedDevices":[
+        {
+            "id": "1967068e-6e6d-4b84-82e0-45bbc7c29204",
+            "name": "Vintage Filamento Globo",
+            "color": "Calida",
+            "socket": "E27",
+            "power": "7",
+            "room": null 
+        },
+        {
+            "id": "94891510-0ef9-42c2-be3e-a2700d1f81bb",
+            "name": "Vintage Filamento",
+            "color": "Neutro",
+            "socket": "E27",
+            "power": "7",
+            "room": null
+        },
+        {
+            "id": "a7b1ca16-0afe-45c1-a3a4-58f8a2ee2225",
+            "name": "Go",
+            "color": "RGB",
+            "socket": "No",
+            "power": "12",
+            "room": null
+        },
+        {
+            "id": "b6d6883e-a26f-4b16-997a-28fbdc439df0",
+            "name": "Play",
+            "color": "RGB",
+            "socket": "No",
+            "power": "24",
+            "room": null
+        }
+    ]
+}
