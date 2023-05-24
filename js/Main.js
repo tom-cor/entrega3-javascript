@@ -5,13 +5,9 @@ fetch('/../predefinedDevices.json')
 .then((d) => {
     predefinedDevicesList = d.predefinedDevices;
     renderPredefinedDevices();
-    // d.predefinedDevices.forEach((device) => {
-            // predefinedDevicesList.push(new Device(device.name, device.color, device.socket, device.power, undefined, device.id));
 });
 
 const rooms = ["Dormitorio", "Cocina", "Living", "Comedor"];
-
-// renderPredefinedDevices();
 
 var style = getComputedStyle(document.body)
 console.log( style.getPropertyValue('--bs-body-bg') )
