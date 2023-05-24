@@ -18,10 +18,10 @@ function load(data) {
     select.value = "18";
 
     select.addEventListener('change', (e) => {
-        showSpinner();
+        // showSpinner();
         const theme = themes[e.target.value];
         document.querySelector('#theme').setAttribute('href', theme.css);
-        hideSpinner();
+        // hideSpinner();
     });
 
     const changeEvent = new Event('change');
